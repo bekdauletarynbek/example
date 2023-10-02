@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref, defineProps, onMounted, defineEmits } from "vue";
+import { ref, defineProps, onMounted, defineEmits, computed } from "vue";
 import ListSelect from "@/components/atom/ListSelect.vue";
 interface IProps {
-  value?: string | number;
+  value?: string;
   list?: string[] | number[];
   placeholder?: string;
   successValue?: boolean;
+  historyList?: string[];
+  error?: boolean;
 }
 
 const props = defineProps<IProps>();
 
-const value = ref<string | number>("");
+const value = ref("");
 const recommendList = ref<boolean>(false);
 const emits = defineEmits(["input", "clearInput"]);
 
@@ -31,15 +33,38 @@ const updateValue = (data) => {
   emits("input", data.target.value);
 };
 
+const selectHistory = (item: string) => {
+  value.value = item;
+  emits("input", item);
+};
+
 const handleFocus = (state) => {
   recommendList.value = state;
 };
+
+const searchHistory = computed(() => {
+  if (props.historyList?.length) {
+    console.log(
+      props.historyList?.filter((k) =>
+        k.toLowerCase().includes(value.value.toLowerCase())
+      )
+    );
+    return props.historyList?.filter((k) =>
+      k.toLowerCase().includes(value.value)
+    );
+  }
+  return "";
+});
 </script>
 
 <template>
   <div class="w-full relative">
     <div
-      class="flex border border-b-0 rounded-t-xl border-gray-200 h-12 w-full"
+      class="flex border rounded-xl border-gray-200 h-12 w-full"
+      :class="[
+        recommendList ? 'border-b-0 rounded-t-xl' : '',
+        error ? 'border-red-500 border' : '',
+      ]"
     >
       <input
         type="text"
@@ -48,7 +73,8 @@ const handleFocus = (state) => {
         @blur="handleFocus(false)"
         @input="updateValue"
         :placeholder="placeholder"
-        class="border-0 w-full pl-5 rounded-t-xl"
+        class="border-0 w-full pl-5 rounded-xl"
+        :class="[recommendList ? 'rounded-t-xl' : '']"
       />
       <div v-if="!successValue" class="bg-blue-500 w-32 ml-auto mr-0 icon">
         Enter
@@ -69,11 +95,19 @@ const handleFocus = (state) => {
       </div>
     </div>
     <div
-      v-if="recommendList"
+      v-if="true && searchHistory?.length"
       class="bottom-0 h-24 w-full z-100 border border-t-0 rounded-b-xl border-gray-200"
     >
-      <ListSelect></ListSelect>
+      <div
+        class="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+        @click="selectHistory(item)"
+        v-for="item in searchHistory"
+        :key="item"
+      >
+        {{ item }}
+      </div>
     </div>
+    <div v-if="error">Invalid props</div>
   </div>
 </template>
 

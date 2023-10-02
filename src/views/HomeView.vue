@@ -13,13 +13,14 @@
     <SelectInput
       :value="searchValue"
       :successValue="!!state.planList.length"
+      :history-list="successListSearch"
+      :error="errorCode"
       placeholder="Enter name of the city"
       class="mt-7 px-3"
       @clear-input="clearSearchInput"
       @input="searchCity"
     />
 
-    {{ state.planList }} {{ errorCode }}
     <div class="mt-7 text-sm text-gray-600">Most popular cities</div>
 
     <TableCustom :list="state.cities"></TableCustom>
@@ -39,14 +40,14 @@
       </div>
     </div>
 
-    <div class="cards absolute bottom-0">
+    <div class="cards">
       <div class="flex">
         <img src="@/assets/img/payments/visa.png" alt="" />
         <img src="@/assets/img/payments/master-card.png" alt="" />
         <img src="@/assets/img/payments/maestro.png" alt="" />
         <img src="@/assets/img/payments/processing-kz.png" alt="" />
       </div>
-      <div>All rights reserved Fast service 2021</div>
+      <div class="bottom-text">All rights reserved Fast service 2021</div>
     </div>
   </div>
 </template>
@@ -127,6 +128,10 @@ watch(
 onBeforeMount(() => {
   const search = route.query.search as string;
   if (search) searchValue.value = search;
+  const searchListBefore = localStorage.getItem("searchCities");
+  if (searchListBefore && JSON.parse(searchListBefore)) {
+    successListSearch.value = JSON.parse(searchListBefore);
+  }
 });
 </script>
 
@@ -155,11 +160,23 @@ onBeforeMount(() => {
   .home {
     @apply w-1/2;
   }
+  .cards {
+    @apply absolute bottom-0;
+  }
 }
 
 .cards {
   * {
     @apply mr-2;
   }
+}
+
+.bottom-text {
+  color: #283044;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  opacity: 0.5;
 }
 </style>

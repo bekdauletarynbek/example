@@ -19,7 +19,7 @@ export const getCities = async (search: string) => {
     "https://test-frontend.stage.mechta.market/delivery/check",
     {
       params: {
-        search,
+        search: search.toLowerCase(),
       },
     }
   );
