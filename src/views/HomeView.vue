@@ -11,23 +11,30 @@
       count delivery cost
     </div>
     <SelectInput
-      @input="searchCity"
+      :value="searchValue"
+      :successValue="!!state.planList.length"
       placeholder="Enter name of the city"
       class="mt-7 px-3"
+      @clear-input="clearSearchInput"
+      @input="searchCity"
     />
+
+    {{ state.planList }} {{ errorCode }}
     <div class="mt-7 text-sm text-gray-600">Most popular cities</div>
 
     <TableCustom :list="state.cities"></TableCustom>
     <div class="left-side-desktop">
-      <div class="choose-plan w-full">
+      <div class="choose-plan" v-if="state.planList.length">
         <PlanItem
-          v-for="item in state.list"
+          v-for="item in state.planList"
           :key="item"
+          @click="activePlan = item.type"
           v-bind="item"
+          :is-active="activePlan"
         ></PlanItem>
       </div>
 
-      <div class="w-full h-full">
+      <div class="w-full h-full" v-else>
         <img class="left-img w-full h-full" src="@/assets/img/img.png" alt="" />
       </div>
     </div>
@@ -49,26 +56,21 @@ import SelectInput from "@/components/atom/SelectInput.vue";
 import TableCustom from "@/components/atom/TableCustom.vue";
 import PlanItem from "@/components/PlanItem.vue";
 import { getCities } from "@/api/city";
-import { ref, reactive } from "vue";
+import { ref, reactive, watch, onBeforeMount } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
+const router = useRouter();
+const route = useRoute();
+
+const searchValue = ref("");
+const timeout = 400;
+const timeoutInstance = ref();
+const activePlan = ref();
+const errorCode = ref(0);
+const successListSearch = ref<string[]>([]);
 const state = reactive({
-  list: [
-    {
-      title: "Pick up",
-      price: 0,
-      image: require("@/assets/svg/box.svg"),
-    },
-    {
-      title: "Pick up",
-      price: 0,
-      image: require("@/assets/svg/box-machine.svg"),
-    },
-    {
-      title: "Pick up",
-      price: 0,
-      image: require("@/assets/svg/box-size.svg"),
-    },
-  ],
+  list: [],
+  planList: [],
   cities: [
     "Nur-Sultan",
     "Almaty",
@@ -84,10 +86,48 @@ const state = reactive({
   searchCities: [],
 });
 
-const searchCity = async (search: string) => {
-  let data = await getCities(search);
-  console.log("searching", data);
+const clearSearchInput = () => {
+  searchValue.value = "";
+  router.push({ name: "home", query: { search: "" } });
+  state.planList = [];
 };
+
+const searchCity = async (search: string) => {
+  clearTimeout(timeoutInstance.value);
+  timeoutInstance.value = setTimeout(async () => {
+    router.push({ name: "home", query: { search } });
+    state.planList = [];
+    await getCities(search)
+      .then((k) => {
+        state.planList = k.data;
+        errorCode.value = 0;
+        if (!successListSearch.value.includes(search)) {
+          successListSearch.value.push(search);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        errorCode.value = err.response.status;
+      });
+  }, timeout);
+};
+
+watch(
+  () => successListSearch.value,
+  () => {
+    console.log(successListSearch.value);
+    localStorage.setItem(
+      "searchedCities",
+      JSON.stringify(successListSearch.value)
+    );
+  },
+  { deep: true }
+);
+
+onBeforeMount(() => {
+  const search = route.query.search as string;
+  if (search) searchValue.value = search;
+});
 </script>
 
 <style lang="scss">
@@ -107,6 +147,10 @@ const searchCity = async (search: string) => {
 @media (min-width: 762px) {
   .left-side-desktop {
     @apply absolute right-0 top-0 flex items-center justify-center w-1/2 rounded-l-3xl mt-0;
+
+    .choose-plan > * {
+      width: 500px;
+    }
   }
   .home {
     @apply w-1/2;
