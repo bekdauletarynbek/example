@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, defineProps, onMounted, defineEmits, computed } from "vue";
-import ListSelect from "@/components/atom/ListSelect.vue";
 interface IProps {
   value?: string;
   list?: string[] | number[];
@@ -11,6 +10,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
+const myDiv = ref<HTMLElement>();
 
 const value = ref("");
 const recommendList = ref<boolean>(false);
@@ -18,6 +18,7 @@ const emits = defineEmits(["input", "clearInput"]);
 
 onMounted(() => {
   console.log(props.value);
+  console.log(searchHistory, props.historyList);
   if (props.value) {
     value.value = props.value;
   }
@@ -35,6 +36,7 @@ const updateValue = (data) => {
 
 const selectHistory = (item: string) => {
   value.value = item;
+  recommendList.value = false;
   emits("input", item);
 };
 
@@ -58,11 +60,11 @@ const searchHistory = computed(() => {
 </script>
 
 <template>
-  <div class="w-full relative">
+  <div class="w-full" ref="myDiv">
     <div
       class="flex border rounded-xl border-gray-200 h-12 w-full"
       :class="[
-        recommendList ? 'border-b-0 rounded-t-xl' : '',
+        recommendList && selectHistory?.length ? 'border-b-0 rounded-t-xl' : '',
         error ? 'border-red-500 border' : '',
       ]"
     >
@@ -70,11 +72,12 @@ const searchHistory = computed(() => {
         type="text"
         :value="value"
         @focus="handleFocus(true)"
-        @blur="handleFocus(false)"
         @input="updateValue"
         :placeholder="placeholder"
-        class="border-0 w-full pl-5 rounded-xl"
-        :class="[recommendList ? 'rounded-t-xl' : '']"
+        class="w-full pl-5 rounded-xl"
+        :class="[
+          recommendList && selectHistory?.length ? 'rounded-t-xl border-0' : '',
+        ]"
       />
       <div v-if="!successValue" class="bg-blue-500 w-32 ml-auto mr-0 icon">
         Enter
@@ -95,11 +98,11 @@ const searchHistory = computed(() => {
       </div>
     </div>
     <div
-      v-if="true && searchHistory?.length"
-      class="bottom-0 h-24 w-full z-100 border border-t-0 rounded-b-xl border-gray-200"
+      v-show="searchHistory?.length && recommendList"
+      class="bottom-0 h-24 w-full z-100 border border-t-0 rounded-b-xl border-gray-200 -mt-1.5"
     >
       <div
-        class="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+        class="px-3 pl-5 py-1 pt-5 hover:bg-gray-100 cursor-pointer"
         @click="selectHistory(item)"
         v-for="item in searchHistory"
         :key="item"

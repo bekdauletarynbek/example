@@ -21,11 +21,16 @@ const title = computed(() => {
 </script>
 
 <template>
-  <div class="flex border my-5 bg-white rounded-2xl mx-3">
+  <div
+    class="flex border my-5 bg-white rounded-3xl mx-3"
+    :class="{ 'is-unactive': !available }"
+  >
     <div class="flex-grow px-5 py-3">
-      <p class="font-bold">{{ title }}</p>
+      <p class="font-bold title-color title-font">{{ title }}</p>
       <div class="flex items-end justify-between">
-        <p>{{ price }} {{ currency }}</p>
+        <p class="price-color text-2xl font-semibold">
+          {{ price }} {{ currency }}
+        </p>
         <img :src="image" alt="" />
       </div>
     </div>
@@ -53,5 +58,33 @@ const title = computed(() => {
     #65b3e4 42.89%,
     rgba(255, 255, 255, 0) 81.27%
   );
+}
+
+.price-color {
+  color: #78a1bb;
+}
+
+.title-color {
+  color: #283044;
+}
+
+.title-font {
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: 0em;
+  text-align: left;
+}
+
+@media (min-width: 762px) {
+  .title-font {
+    font-size: 24px;
+  }
+}
+
+.is-unactive {
+  opacity: 0.6;
+  @apply cursor-not-allowed;
 }
 </style>

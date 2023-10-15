@@ -1,14 +1,16 @@
 <template>
   <div class="home flex flex-col">
-    <div class="flex items-center">
+    <div class="flex items-center ml-5">
       <img alt="Vue logo" src="@/assets/img/logo.png" />
       <p class="pl-3 font-bold text-lg">FastService</p>
     </div>
 
-    <div class="mt-12 text-2xl font-bold">Delivery cost</div>
-    <div class="text-gray-400 text-sm mt-1.5">
-      Enter name of the city to<br />
-      count delivery cost
+    <div class="px-5">
+      <div class="mt-12 text-2xl font-bold">Delivery cost</div>
+      <div class="text-gray-400 text-sm mt-1.5">
+        Enter name of the city to<br />
+        count delivery cost
+      </div>
     </div>
     <SelectInput
       :value="searchValue"
@@ -21,7 +23,9 @@
       @input="searchCity"
     />
 
-    <div class="mt-7 text-sm text-gray-600">Most popular cities</div>
+    <div class="mt-7 text-xl text-gray-600 pl-5 font-semibold">
+      Most popular cities
+    </div>
 
     <TableCustom :list="state.cities"></TableCustom>
     <div class="left-side-desktop">
@@ -29,7 +33,7 @@
         <PlanItem
           v-for="item in state.planList"
           :key="item"
-          @click="activePlan = item.type"
+          @click="selectPlan(item)"
           v-bind="item"
           :is-active="activePlan"
         ></PlanItem>
@@ -40,7 +44,7 @@
       </div>
     </div>
 
-    <div class="cards">
+    <div class="cards px-5">
       <div class="flex">
         <img src="@/assets/img/payments/visa.png" alt="" />
         <img src="@/assets/img/payments/master-card.png" alt="" />
@@ -113,6 +117,11 @@ const searchCity = async (search: string) => {
   }, timeout);
 };
 
+const selectPlan = (item) => {
+  if (!item.available) return;
+  activePlan.value = item.type;
+};
+
 watch(
   () => successListSearch.value,
   () => {
@@ -127,7 +136,9 @@ watch(
 
 onBeforeMount(() => {
   const search = route.query.search as string;
-  if (search) searchValue.value = search;
+  if (search) {
+    searchValue.value = search;
+  }
   const searchListBefore = localStorage.getItem("searchCities");
   if (searchListBefore && JSON.parse(searchListBefore)) {
     successListSearch.value = JSON.parse(searchListBefore);
@@ -136,6 +147,7 @@ onBeforeMount(() => {
 </script>
 
 <style lang="scss">
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,300;1,400;1,500;1,700&display=swap");
 .home {
   @apply pt-5 pb-10;
 }
@@ -161,7 +173,7 @@ onBeforeMount(() => {
     @apply w-1/2;
   }
   .cards {
-    @apply absolute bottom-0;
+    @apply absolute bottom-0 pt-0 pb-7;
   }
 }
 
@@ -169,6 +181,7 @@ onBeforeMount(() => {
   * {
     @apply mr-2;
   }
+  @apply pt-5;
 }
 
 .bottom-text {
@@ -178,5 +191,6 @@ onBeforeMount(() => {
   font-weight: 400;
   line-height: normal;
   opacity: 0.5;
+  @apply mt-1.5;
 }
 </style>

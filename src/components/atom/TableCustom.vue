@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps } from "vue";
-import TableItem from "@/components/atom/TableItem.vue";
+import { defineProps } from "vue";
 
 interface Props {
   list: string[] | ITableItem[];
@@ -10,6 +9,7 @@ interface ITableItem {
   id: string | number;
   city?: string;
   label: string;
+  title: string;
 }
 
 const props = defineProps<Props>();
