@@ -24,7 +24,7 @@
       @input="searchCity"
     />
 
-    <div class="mt-7 text-xl text-gray-600 pl-5 font-semibold">
+    <div class="mt-7 title-of-table text-gray-600 pl-5 font-semibold">
       Most popular cities
     </div>
 
@@ -185,6 +185,10 @@ onBeforeMount(() => {
   }
   .cards {
     @apply absolute bottom-0 pt-0 pb-7;
+  }
+
+  .title-of-table {
+    @apply text-xl;
   }
 }
 
