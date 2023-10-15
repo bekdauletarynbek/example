@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, onMounted, defineEmits, computed } from "vue";
+import { ref, defineProps, onMounted, defineEmits, computed, defineExpose } from "vue";
 interface IProps {
   value?: string;
   list?: string[] | number[];
@@ -34,6 +34,10 @@ const updateValue = (data) => {
   emits("input", data.target.value);
 };
 
+const setValue = (name: string)=> {
+  value.value = name;
+}
+
 const selectHistory = (item: string) => {
   value.value = item;
   recommendList.value = false;
@@ -46,17 +50,15 @@ const handleFocus = (state) => {
 
 const searchHistory = computed(() => {
   if (props.historyList?.length) {
-    console.log(
-      props.historyList?.filter((k) =>
-        k.toLowerCase().includes(value.value.toLowerCase())
-      )
-    );
     return props.historyList?.filter((k) =>
       k.toLowerCase().includes(value.value)
     );
   }
   return "";
 });
+defineExpose({
+  setValue
+})
 </script>
 
 <template>
@@ -76,13 +78,10 @@ const searchHistory = computed(() => {
         :placeholder="placeholder"
         class="w-full pl-5 rounded-xl"
         :class="[
-          recommendList && selectHistory?.length ? 'rounded-t-xl border-0' : '',
+           selectHistory?.length  && recommendList? 'rounded-t-xl border-0' : '',
         ]"
       />
-      <div v-if="!successValue" class="bg-blue-500 w-32 ml-auto mr-0 icon">
-        Enter
-      </div>
-      <div v-else class="icon bg-red-500 w-16" @click="clearInput">
+      <div v-if="value" class="icon bg-red-500 w-16" @click="clearInput">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -98,8 +97,8 @@ const searchHistory = computed(() => {
       </div>
     </div>
     <div
-      v-show="searchHistory?.length && recommendList"
-      class="bottom-0 h-24 w-full z-100 border border-t-0 rounded-b-xl border-gray-200 -mt-1.5"
+      v-if="searchHistory?.length && recommendList"
+      class="bottom-0 h-24 w-full z-100 border border-t-0 overflow-y-auto rounded-b-xl border-gray-200 -mt-1.5"
     >
       <div
         class="px-3 pl-5 py-1 pt-5 hover:bg-gray-100 cursor-pointer"
@@ -110,7 +109,7 @@ const searchHistory = computed(() => {
         {{ item }}
       </div>
     </div>
-    <div v-if="error">Invalid props</div>
+    <div v-if="error" class="text-red-500">Invalid props</div>
   </div>
 </template>
 

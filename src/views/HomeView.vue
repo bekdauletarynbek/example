@@ -14,6 +14,7 @@
     </div>
     <SelectInput
       :value="searchValue"
+      ref="selectInput"
       :successValue="!!state.planList.length"
       :history-list="successListSearch"
       :error="errorCode"
@@ -27,7 +28,7 @@
       Most popular cities
     </div>
 
-    <TableCustom :list="state.cities"></TableCustom>
+    <TableCustom @select-city="selectCity" :list="state.cities"></TableCustom>
     <div class="left-side-desktop">
       <div class="choose-plan" v-if="state.planList.length">
         <PlanItem
@@ -61,7 +62,7 @@ import SelectInput from "@/components/atom/SelectInput.vue";
 import TableCustom from "@/components/atom/TableCustom.vue";
 import PlanItem from "@/components/PlanItem.vue";
 import { getCities } from "@/api/city";
-import { ref, reactive, watch, onBeforeMount } from "vue";
+import { ref, reactive, watch, onBeforeMount, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
@@ -73,6 +74,7 @@ const timeoutInstance = ref();
 const activePlan = ref();
 const errorCode = ref(0);
 const successListSearch = ref<string[]>([]);
+const selectInput = ref()
 const state = reactive({
   list: [],
   planList: [],
@@ -122,6 +124,12 @@ const selectPlan = (item) => {
   activePlan.value = item.type;
 };
 
+const selectCity = (name)=> {
+  searchValue.value = name;
+  selectInput.value?.setValue(name)
+  searchCity(searchValue.value)
+}
+
 watch(
   () => successListSearch.value,
   () => {
@@ -136,14 +144,17 @@ watch(
 
 onBeforeMount(() => {
   const search = route.query.search as string;
+
   if (search) {
     searchValue.value = search;
+    searchCity(searchValue.value)
   }
   const searchListBefore = localStorage.getItem("searchCities");
   if (searchListBefore && JSON.parse(searchListBefore)) {
     successListSearch.value = JSON.parse(searchListBefore);
   }
 });
+
 </script>
 
 <style lang="scss">
