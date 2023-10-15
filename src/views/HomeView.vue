@@ -108,6 +108,10 @@ const searchCity = async (search: string) => {
       .then((k) => {
         state.planList = k.data;
         errorCode.value = 0;
+        for(let item of state.planList) {
+          if(item.available) {activePlan.value = item.type; return}
+        }
+        // activePlan.value = ;
         if (!successListSearch.value.includes(search)) {
           successListSearch.value.push(search);
         }
