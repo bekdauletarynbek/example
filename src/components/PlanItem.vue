@@ -52,12 +52,7 @@ const title = computed(() => {
 
 <style scoped lang="scss">
 .icon-active {
-  @apply flex items-center justify-center text-white font-extrabold px-3 w-16 text-2xl rounded-r-2xl;
-  background: linear-gradient(
-    310deg,
-    #65b3e4 42.89%,
-    rgba(255, 255, 255, 0) 81.27%
-  );
+  @apply flex items-center justify-center text-white font-extrabold px-3 w-16 text-2xl rounded-r-2xl bg-blue-500;
 }
 
 .price-color {
